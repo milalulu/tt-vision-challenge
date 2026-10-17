@@ -32,3 +32,36 @@ document.getElementById('config-form').addEventListener('submit',event=>{
  event.preventDefault();const data=new FormData(event.currentTarget);const text=['TT Vision Challenge — описание задачи','',`Вид спорта: ${String(data.get('sport')).trim()}`,`Камеры: ${data.get('cameras')}`,`Нужные функции: ${data.getAll('feature').join(', ') || 'Обсудить при подборе'}`,'','Совместимость и возможности конфигурации требуют уточнения.'].join('\r\n');
  const url=URL.createObjectURL(new Blob(['\ufeff'+text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='TT-Vision-Task.txt';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);document.getElementById('config-status').textContent='Описание подготовлено и передано браузеру для скачивания.';
 });
+
+// Keep content visible by default; progressive motion only when supported.
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const animatedSections = [...document.querySelectorAll('.section-heading,.review-facts article,.module-layout,.workflow>div,.steps li,.purchase-inner,.configuration>div,#config-form,.faq>h2,.faq details')];
+let revealObserver;
+function configureReveals() {
+ revealObserver?.disconnect();
+ animatedSections.forEach(element=>element.classList.remove('reveal-ready'));
+ if(reducedMotion.matches || !('IntersectionObserver' in window)) return;
+ revealObserver = new IntersectionObserver(entries=>entries.forEach(entry=>{
+  if(entry.isIntersecting){entry.target.classList.add('is-visible');revealObserver.unobserve(entry.target);}
+ }),{threshold:0.08,rootMargin:'0px 0px -24px 0px'});
+ animatedSections.forEach((element,index)=>{
+  if(element.classList.contains('is-visible') || element.getBoundingClientRect().top < innerHeight) return;
+  element.style.setProperty('--reveal-delay',element.matches('.review-facts article')?`${index%3*70}ms`:'0ms');
+  element.classList.add('reveal-ready');revealObserver.observe(element);
+ });
+}
+configureReveals();reducedMotion.addEventListener('change',configureReveals);
+const progress=document.createElement('div');progress.className='page-progress';progress.setAttribute('aria-hidden','true');document.body.append(progress);
+let scrollFrame=0;
+function updateProgress(){scrollFrame=0;const range=document.documentElement.scrollHeight-innerHeight;progress.style.transform=`scaleX(${range>0?Math.max(0,Math.min(1,scrollY/range)):0})`;}
+addEventListener('scroll',()=>{if(!scrollFrame)scrollFrame=requestAnimationFrame(updateProgress);},{passive:true});addEventListener('resize',updateProgress);updateProgress();
+const heroCard=document.querySelector('.product-intro');
+heroCard.addEventListener('pointermove',event=>{
+ if(reducedMotion.matches || event.pointerType!=='mouse')return;
+ const r=heroCard.getBoundingClientRect();heroCard.style.setProperty('--spot-x',`${(event.clientX-r.left)/r.width*100}%`);heroCard.style.setProperty('--spot-y',`${(event.clientY-r.top)/r.height*100}%`);
+});
+heroCard.addEventListener('pointerleave',()=>{heroCard.style.removeProperty('--spot-x');heroCard.style.removeProperty('--spot-y');});
+function animateChange(element){if(!reducedMotion.matches && element.animate)element.animate([{opacity:.35,transform:'translateY(7px)'},{opacity:1,transform:'translateY(0)'}],{duration:280,easing:'ease-out'});}
+document.querySelectorAll('[data-module]').forEach(button=>button.addEventListener('click',()=>animateChange(document.querySelector('.module-detail'))));
+document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>animateChange(document.querySelector('.gallery-caption'))));
+document.querySelectorAll('.faq details').forEach(detail=>detail.addEventListener('toggle',()=>{if(detail.open)animateChange(detail.querySelector('p'));}));
