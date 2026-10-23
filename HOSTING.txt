@@ -1,0 +1,31 @@
+TT Vision Challenge - public website
+
+Live site:
+https://tt-vision-challenge.var-cloud-diagnostics.workers.dev/
+
+Hosting: Cloudflare Workers Static Assets, static files only.
+No application server, database or paid Worker code is used.
+The existing account subdomain is shared with other projects. Do not rename it.
+
+Build:
+node build.mjs
+
+Preview (Wrangler 4):
+wrangler dev --local --port 47908
+
+Publish:
+node build.mjs
+wrangler deploy
+
+Use an already authenticated Cloudflare CLI. No tokens belong in this repository.
+The build copies only public files from an explicit allowlist into dist/.
+Do not upload the local video-preview project or footage from Desktop/stream.
+
+Review demo: generated 3D episode, 121 frames at 30 FPS, two synchronized views.
+The small videos are fetched as complete blobs on interaction so seeking works
+even when the static host does not support byte-range requests.
+The 32-second overview is loaded only when opened. Music credit and license
+source are in media/MUSIC-CREDITS.txt. Font license is in assets/fonts/OFL.txt.
+
+The configuration form produces a local text file or clipboard content only.
+It does not submit leads. Add a real public contact when the owner provides one.

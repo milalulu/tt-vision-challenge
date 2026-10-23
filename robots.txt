@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tt-vision-challenge.var-cloud-diagnostics.workers.dev/sitemap.xml
