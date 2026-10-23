@@ -1,0 +1,4 @@
+Public website: https://tt-vision-challenge.var-cloud-diagnostics.workers.dev/
+
+The main branch serves a redirect from the previous GitHub Pages URL.
+Full website source and Cloudflare configuration: branch site-refresh-cloudflare-20261023.
